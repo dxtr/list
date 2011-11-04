@@ -16,6 +16,14 @@ list_node* list_create(void *data)
 	return l;
 }
 
+void list_destroy(list_node **list)
+{
+	if (list == NULL) return;
+	while (*list != NULL) {
+		lust_remove(list, *list);
+	}
+}
+
 /* Creates a list node and inserts it after the specified node
  * Arguments: A node to insert after and the data the new node will contain
  */
