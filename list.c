@@ -20,7 +20,7 @@ void list_destroy(list_node **list)
 {
 	if (list == NULL) return;
 	while (*list != NULL) {
-		lust_remove(list, *list);
+		list_remove(list, *list);
 	}
 }
 
@@ -78,12 +78,14 @@ void list_remove(list_node **list, list_node *node)
 	if (*list == node) {
 		*list = (*list)->next;
 		free(node);
+		node = NULL;
 	} else {
 		tmp = *list;
 		while (tmp->next && tmp->next != node) tmp = tmp->next;
 		if (tmp->next) {
 			tmp->next = node->next;
 			free(node);
+			node = NULL;
 		}
 	}
 }
