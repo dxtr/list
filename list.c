@@ -16,6 +16,9 @@ list_node* list_create(void *data)
 	return l;
 }
 
+/* Completely destroys a list
+ * Arguments: A pointer to a pointer to a list
+ */
 void list_destroy(list_node **list)
 {
 	if (list == NULL) return;
@@ -90,12 +93,18 @@ void list_remove(list_node **list, list_node *node)
 	}
 }
 
+/* Removes an element from a list by comparing the data pointers
+ * Arguments: A pointer to a pointer to a list and the pointer to the data
+ */
 void list_remove_by_data(list_node **list, void *data)
 {
 	if (list == NULL || *list == NULL || data == NULL) return;
 	list_remove(list, list_find_by_data(*list, data));
 }
 
+/* Find an element in a list by the pointer to the element
+ * Arguments: A pointer to a list and a pointer to the node/element
+ */
 list_node* list_find_node(list_node *list, list_node *node)
 {
 	if (list == NULL || node == NULL) goto ret;
@@ -108,6 +117,9 @@ ret:
 	return NULL;
 }
 
+/* Finds an elemt in a list by the data pointer
+ * Arguments: A pointer to a list and a pointer to the data
+ */
 list_node* list_find_by_data(list_node *list, void *data)
 {
 	if (list == NULL || data == NULL) goto ret;
@@ -121,6 +133,10 @@ ret:
 	return NULL;
 }
 
+/* Finds an element in the list by using the comparison function
+ * Arguments: A pointer to a list, the comparison function and a pointer to the
+ * data
+ */
 list_node* list_find(list_node *list, int(*func)(list_node*,void*), void *data)
 {
 	if (!func) goto ret;
