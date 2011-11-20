@@ -2,8 +2,9 @@
 #include <string.h>
 #include "list.h"
 
-/* Creates a list node and returns it
- * Arguments: The data the list will contain
+/* Creates a list (node) and returns it
+ * Arguments: The data the list will contain or NULL to create an empty
+ * list/node
  */
 list_node* list_create(void *data)
 {
