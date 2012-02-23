@@ -134,7 +134,7 @@ list_node* list_find(list_node *list, int(*func)(list_node*,void*), void *data)
 {
 	if (!func) return NULL;
 	while(list) {
-		if (func(list, data) > 0) break;
+		if (func(list, data)) break;
 		list = list->next;
 	}
 	return list;
