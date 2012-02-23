@@ -34,11 +34,10 @@ void list_destroy(list_node **list)
 list_node* list_insert_after(list_node *node, void *data)
 {
 	list_node *new_node = list_create(data);
-	if (new_node != NULL) {
+	if (new_node) {
 		new_node->next = node->next;
 		node->next = new_node;
 	}
-
 	return new_node;
 }
 
@@ -108,14 +107,11 @@ void list_remove_by_data(list_node **list, void *data)
  */
 list_node* list_find_node(list_node *list, list_node *node)
 {
-	if (list == NULL || node == NULL) goto ret;
-
 	while (list) {
-		if (list == node) return list;
+		if (list == node) break;
 		list = list->next;
 	}
-ret:
-	return NULL;
+	return list;
 }
 
 /* Finds an elemt in a list by the data pointer
@@ -123,15 +119,11 @@ ret:
  */
 list_node* list_find_by_data(list_node *list, void *data)
 {
-	if (list == NULL || data == NULL) goto ret;
-
 	while (list) {
-		if (list->data == data) return list;
+		if (list->data == data) break;
 		list = list->next;
 	}
-
-ret:
-	return NULL;
+	return list;
 }
 
 /* Finds an element in the list by using the comparison function
@@ -140,12 +132,11 @@ ret:
  */
 list_node* list_find(list_node *list, int(*func)(list_node*,void*), void *data)
 {
-	if (!func) goto ret;
+	if (!func) return NULL;
 	while(list) {
-		if (func(list, data) > 0) return list;
+		if (func(list, data) > 0) break;
 		list = list->next;
 	}
-ret:
-	return NULL;
+	return list;
 }
 
