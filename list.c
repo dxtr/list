@@ -4,14 +4,18 @@
 
 /* Creates a list (node) and returns it
  * Arguments: The data the list will contain or NULL to create an empty
- * list/node
+ * list/node and a CmpFunc
  */
-list_node* list_create(void *data)
+llist* list_create(int (*CmpFunc)(list_node*,void*), void *data)
 {
-	list_node *l = malloc(sizeof(list_node));
+	if (!CmpFunc) return NULL;
+	llist *l = malloc(sizeof(llist));
+
 	if (l != NULL) {
-		l->next = NULL;
-		l->data = data;
+		if (!data) memset(l, '\0', sizeof(llist));
+		else list_insert(l, data);
+
+		l->CmpFunc = CmpFunc;
 	}
 
 	return l;
@@ -20,11 +24,30 @@ list_node* list_create(void *data)
 /* Completely destroys a list
  * Arguments: A pointer to a pointer to a list
  */
-void list_destroy(list_node **list)
+void list_destroy(llist *l)
 {
-	if (list == NULL) return;
-	while (*list != NULL) {
-		list_remove(list, *list);
+	if (l) return;
+	while (l->node != NULL) {
+		list_pop(l);
+	}
+	free(l);
+}
+
+list_node* list_node_create(void *data)
+{
+	if (!data) return NULL;
+	list_node *node = malloc(sizeof(list_node));
+	if (node) {
+		node->data = data;
+		node->next = NULL;
+	}
+	return node;
+}
+
+void list_node_destroy(list_node *node)
+{
+	if (node) {
+		free(node);
 	}
 }
 
@@ -33,7 +56,8 @@ void list_destroy(list_node **list)
  */
 list_node* list_insert_after(list_node *node, void *data)
 {
-	list_node *new_node = list_create(data);
+	if (!node) return NULL;
+	list_node *new_node = list_node_create(data);
 	if (new_node) {
 		new_node->next = node->next;
 		node->next = new_node;
@@ -45,10 +69,14 @@ list_node* list_insert_after(list_node *node, void *data)
  * Arguments: The list the node will be inserted to and the data the node will
  * contain
  */
-list_node* list_insert_beginning(list_node *list, void *data)
+list_node* list_insert_beginning(llist *l, void *data)
 {
-	list_node *new_node = list_create(data);
-	if (new_node != NULL) { new_node->next = list; }
+	if (!l) return NULL;
+	list_node *new_node = list_node_create(data);
+	if (new_node) {
+		new_node->next = l->node;
+		l->node = new_node;
+	}
 	return new_node;
 }
 
@@ -56,11 +84,12 @@ list_node* list_insert_beginning(list_node *list, void *data)
  * Arguments: The list the node will be inserted to and the data the node will
  * contain
  */
-list_node* list_insert_end(list_node *list, void *data)
+list_node* list_insert_end(llist *l, void *data)
 {
-	list_node *new_node = list_create(data);
-	if (new_node != NULL) {
-		for(list_node *it = list; it != NULL; it = it->next) {
+	if (!l) return NULL;
+	list_node *new_node = list_node_create(data);
+	if (new_node) {
+		for(list_node *it = l->node; it; it = it->next) {
 			if (it->next == NULL) {
 				it->next = new_node;
 				break;
@@ -73,70 +102,59 @@ list_node* list_insert_end(list_node *list, void *data)
 /* Removes a node from the list
  * Arguments: The list and the node that will be removed
  */
-void list_remove(list_node **list, list_node *node)
+void list_remove(llist *l, list_node *node)
 {
-	list_node *tmp = NULL;
-	if (list == NULL || *list == NULL || node == NULL) return;
+	if (!l || !node) return;
+	list_node *tmp = l->node;
 
-	if (*list == node) {
-		*list = (*list)->next;
-		free(node);
+	while (tmp->next && tmp->next != node) tmp = tmp->next;
+	if (tmp->next) {
+		tmp->next = node->next;
+		list_node_destroy(node);
 		node = NULL;
-	} else {
-		tmp = *list;
-		while (tmp->next && tmp->next != node) tmp = tmp->next;
-		if (tmp->next) {
-			tmp->next = node->next;
-			free(node);
-			node = NULL;
-		}
 	}
-}
-
-/* Removes an element from a list by comparing the data pointers
- * Arguments: A pointer to a pointer to a list and the pointer to the data
- */
-void list_remove_by_data(list_node **list, void *data)
-{
-	if (list == NULL || *list == NULL || data == NULL) return;
-	list_remove(list, list_find_by_data(*list, data));
 }
 
 /* Find an element in a list by the pointer to the element
  * Arguments: A pointer to a list and a pointer to the node/element
  */
-list_node* list_find_node(list_node *list, list_node *node)
+list_node* list_find_node(llist *l, list_node *node)
 {
-	while (list) {
-		if (list == node) break;
-		list = list->next;
-	}
-	return list;
+	if (!l) return NULL;
+	for (list_node *it = l->node; it; it = it->next)
+		{ if (it == node) return it; }
+	return NULL;
 }
 
-/* Finds an elemt in a list by the data pointer
+list_node* list_find_by_data(llist *l, void *data)
+{
+	if (!l) return NULL;
+	for (list_node *it = l->node; it; it = it->next)
+		{ if (l->CmpFunc(it, data) == 0) return it; }
+	return NULL;
+}
+
+/* Finds a node in a list by the data pointer
  * Arguments: A pointer to a list and a pointer to the data
  */
-list_node* list_find_by_data(list_node *list, void *data)
+list_node* list_find_by_data_ptr(llist *l, void *data)
 {
-	while (list) {
-		if (list->data == data) break;
-		list = list->next;
-	}
-	return list;
+	if (!l) return NULL;
+	for (list_node *it = l->node; it; it = it->next)
+		{ if (it->data == data) return it; }
+	return NULL;
 }
 
-/* Finds an element in the list by using the comparison function
- * Arguments: A pointer to a list, the comparison function and a pointer to the
- * data
- */
-list_node* list_find(list_node *list, int(*func)(list_node*,void*), void *data)
+void *list_pop(llist *l)
 {
-	if (!func) return NULL;
-	while(list) {
-		if (func(list, data)) break;
-		list = list->next;
+	void *data = NULL;
+	list_node *tmp_node = NULL;
+	if (l) {
+		tmp_node = l->node;
+		data = tmp_node->data;
+		l->node = tmp_node->next;
+		list_node_destroy(tmp_node);
 	}
-	return list;
+	return data;
 }
 
