@@ -17,9 +17,6 @@ list_node* list_create(void *data)
 	return l;
 }
 
-/* Completely destroys a list
- * Arguments: A pointer to a pointer to a list
- */
 void list_destroy(list_node **list)
 {
 	if (list == NULL) return;
@@ -28,9 +25,6 @@ void list_destroy(list_node **list)
 	}
 }
 
-/* Creates a list node and inserts it after the specified node
- * Arguments: A node to insert after and the data the new node will contain
- */
 list_node* list_insert_after(list_node *node, void *data)
 {
 	list_node *new_node = list_create(data);
@@ -41,10 +35,6 @@ list_node* list_insert_after(list_node *node, void *data)
 	return new_node;
 }
 
-/* Creates a new list node and inserts it in the beginning of the list
- * Arguments: The list the node will be inserted to and the data the node will
- * contain
- */
 list_node* list_insert_beginning(list_node *list, void *data)
 {
 	list_node *new_node = list_create(data);
@@ -52,10 +42,6 @@ list_node* list_insert_beginning(list_node *list, void *data)
 	return new_node;
 }
 
-/* Creates a new list node and inserts it at the end of the list
- * Arguments: The list the node will be inserted to and the data the node will
- * contain
- */
 list_node* list_insert_end(list_node *list, void *data)
 {
 	list_node *new_node = list_create(data);
@@ -70,9 +56,6 @@ list_node* list_insert_end(list_node *list, void *data)
 	return new_node;
 }
 
-/* Removes a node from the list
- * Arguments: The list and the node that will be removed
- */
 void list_remove(list_node **list, list_node *node)
 {
 	list_node *tmp = NULL;
@@ -93,18 +76,12 @@ void list_remove(list_node **list, list_node *node)
 	}
 }
 
-/* Removes an element from a list by comparing the data pointers
- * Arguments: A pointer to a pointer to a list and the pointer to the data
- */
 void list_remove_by_data(list_node **list, void *data)
 {
 	if (list == NULL || *list == NULL || data == NULL) return;
 	list_remove(list, list_find_by_data(*list, data));
 }
 
-/* Find an element in a list by the pointer to the element
- * Arguments: A pointer to a list and a pointer to the node/element
- */
 list_node* list_find_node(list_node *list, list_node *node)
 {
 	while (list) {
